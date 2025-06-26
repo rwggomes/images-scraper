@@ -1,16 +1,29 @@
 import { URL } from 'url';
 
 /**
- * Handles paginated scraping for either main catalog or genre.
+ * Handles paginated scraping for either the main catalog or a genre page.
+ * 
+ * @param {puppeteer.Page} page - Puppeteer page instance
+ * @param {object} options
+ * @param {string} options.baseUrl - Base URL of the scraping target
+ * @param {number} options.delay - Millisecond delay between pages
+ * @param {number} options.limit - Max number of pages to scrape
+ * @param {number} options.maxRetries - Max retry attempts per page
+ * @param {Function} options.scrapeFn - Function that performs the scraping
+ * @param {Function} options.onPageScraped - Optional callback after each page
+ * @returns {Promise<Array>} - Collected results
  */
-export const handlePagination = async (page, {
-  baseUrl,
-  delay = 1000,
-  limit = 3,
-  maxRetries = 2,
-  scrapeFn,
-  onPageScraped = () => {}
-}) => {
+export const handlePagination = async (
+  page,
+  {
+    baseUrl,
+    delay = 1000,
+    limit = 3,
+    maxRetries = 2,
+    scrapeFn,
+    onPageScraped = () => {}
+  }
+) => {
   const results = [];
   let pageIndex = 1;
   let hasNext = true;
@@ -18,14 +31,14 @@ export const handlePagination = async (page, {
   while (hasNext && (!limit || pageIndex <= limit)) {
     let pageUrl;
 
-    // ✅ MAIN CATALOG (page 1 = index.html, page 2+ = /catalogue/page-X.html)
+    // Main catalog logic
     if (baseUrl === 'https://books.toscrape.com/' || baseUrl.endsWith('/index.html')) {
       pageUrl =
         pageIndex === 1
           ? 'https://books.toscrape.com/index.html'
           : `https://books.toscrape.com/catalogue/page-${pageIndex}.html`;
     } else {
-      // ✅ GENRE pages: e.g. travel_2/index.html → page-2.html
+      // Genre-specific pagination
       pageUrl =
         pageIndex === 1
           ? baseUrl
@@ -55,12 +68,12 @@ export const handlePagination = async (page, {
       console.warn(`Skipping ${pageUrl} after ${maxRetries} retries.`);
     }
 
-    // Check for next page
     hasNext = await page.$('li.next a') !== null;
     pageIndex++;
 
-    if (delay) await new Promise(resolve => setTimeout(resolve, delay));
-;
+    if (delay) {
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
   }
 
   return results;

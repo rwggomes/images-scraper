@@ -4,7 +4,7 @@ import https from 'https';
 import { scrapeGenrePage } from './scrapeGenrePage.js';
 
 /**
- * Inlined image downloader using Node's https module
+Image downloader using Node's https module
  */
 const downloadImage = (url, folder, title) => {
   return new Promise((resolve, reject) => {

@@ -1,3 +1,4 @@
+//  * Extracts book information from a genre page and downloads images
 export const scrapePage = async (page, pageIndex) => {
   await page.waitForSelector('.product_pod');
 
@@ -12,6 +13,6 @@ export const scrapePage = async (page, pageIndex) => {
         return { title, price, availability, image, pageIndex: index };
       });
     },
-    pageIndex // Pass pageIndex as argument to $$eval
+    pageIndex
   );
 };

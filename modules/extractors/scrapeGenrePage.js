@@ -1,3 +1,10 @@
+/**
+ * Scrapes book data from a genre page.
+ * 
+ * @param {puppeteer.Page} page - The Puppeteer page instance.
+ * @param {string} genre - The genre name to associate with each book entry.
+ * @returns {Promise<Array>} - List of books with metadata including genre.
+ */
 export const scrapeGenrePage = async (page, genre) => {
   return await page.$$eval('.product_pod', (items, genreName) => {
     return items.map(item => {
@@ -9,5 +16,5 @@ export const scrapeGenrePage = async (page, genre) => {
 
       return { title, price, availability, image, genre: genreName };
     });
-  }, genre); // 👈 Pass genre as argument to $$eval
+  }, genre);
 };

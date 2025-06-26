@@ -3,28 +3,30 @@ import path from 'path';
 import { format as formatDate } from 'date-fns';
 import { logInfo } from './logger.js';
 import { createWriteStream } from 'fs';
-
 import http from 'http';
 import https from 'https';
 import { createObjectCsvWriter } from 'csv-writer';
 
+/**
+ * Saves data to a JSON or CSV file with a timestamped filename.
+ */
 export async function saveResults(data, format = 'json', _, target = 'results', argv = {}) {
   if (!data || data.length === 0) {
     console.warn('No data to save.');
     return;
   }
+
   const outputDir = 'output';
   const timestamp = formatDate(new Date(), 'yyyy-MM-dd_HH-mm-ss');
   const filename = `${target}-${timestamp}.${format}`;
-  const outputPath = path.join('output', filename);
-
+  const outputPath = path.join(outputDir, filename);
 
   await fs.ensureDir(outputDir);
 
   if (format === 'csv') {
     const csvWriter = createObjectCsvWriter({
       path: outputPath,
-      header: Object.keys(data[0]).map((key) => ({ id: key, title: key })),
+      header: Object.keys(data[0]).map(key => ({ id: key, title: key })),
     });
     await csvWriter.writeRecords(data);
   } else {
@@ -39,6 +41,9 @@ export async function saveResults(data, format = 'json', _, target = 'results', 
   }
 }
 
+/**
+ * Saves a file of any type to the given path.
+ */
 export async function saveToFile(filePath, data, options = {}) {
   await fs.ensureDir(path.dirname(filePath));
 
@@ -53,6 +58,9 @@ export async function saveToFile(filePath, data, options = {}) {
   logInfo(`Saved file: ${filePath}`);
 }
 
+/**
+ * Downloads a list of assets to a subfolder under /assets.
+ */
 export async function downloadAssets(urls, target = 'assets') {
   if (!urls?.length) {
     console.warn('No assets to download.');
@@ -72,13 +80,13 @@ export async function downloadAssets(urls, target = 'assets') {
         const file = createWriteStream(filePath);
         lib.get(url, (res) => {
           if (res.statusCode !== 200) {
-            return reject(new Error(`Failed (${res.statusCode})`));
+            return reject(new Error(`Failed with status ${res.statusCode}`));
           }
 
           res.pipe(file);
           file.on('finish', () => {
             file.close();
-            logInfo(`Downloaded: ${filePath}`);
+            logInfo(`Downloaded asset: ${filePath}`);
             resolve();
           });
         }).on('error', (err) => {
@@ -87,11 +95,14 @@ export async function downloadAssets(urls, target = 'assets') {
         });
       });
     } catch (err) {
-      console.error(`Download failed: ${url} → ${err.message}`);
+      console.error(`Download failed for ${url}: ${err.message}`);
     }
   }
 }
 
+/**
+ * Extracts URLs that look like downloadable assets (jpg, png, pdf) from the data set.
+ */
 function extractAssetUrls(data) {
   return data.flatMap(item =>
     Object.values(item).filter(

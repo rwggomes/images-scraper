@@ -11,10 +11,9 @@ export const scrapeBooksByGenre = async (page, options) => {
     const genres = await page.$$eval('.side_categories ul li ul li a', links =>
         links.map(link => ({
             name: link.textContent.trim(),
-            url: new URL(link.getAttribute('href'), 'https://books.toscrape.com/').href
+            url: new URL(link.getAttribute('href'), baseUrl).href
         }))
     );
-
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
     const isSpecificGenreRun = !!options.genres;
@@ -25,8 +24,6 @@ export const scrapeBooksByGenre = async (page, options) => {
             : `allGenres-${timestamp}`
     );
 
-
-    // Inlined image downloader (still used)
     const downloadImage = (url, folder, title) => {
         return new Promise((resolve, reject) => {
             try {
@@ -59,7 +56,6 @@ export const scrapeBooksByGenre = async (page, options) => {
         });
     };
 
-    // Filter & limit genres
     const genreFilterList = options.genres
         ? options.genres.split(',').map(name => name.trim().toLowerCase())
         : null;
@@ -99,7 +95,7 @@ export const scrapeBooksByGenre = async (page, options) => {
                             try {
                                 await downloadImage(book.image, genreFolder, book.title);
                             } catch (err) {
-                                console.error(err.message);
+                                console.error(`Image download error: ${err.message}`);
                             }
                         }
                     }
@@ -117,17 +113,12 @@ export const scrapeBooksByGenre = async (page, options) => {
 
         allResults.push(...genreResults);
 
-
         if (options.savePerGenre && genreResults.length > 0) {
-            const genreDir = path.join(
-                baseOutputFolder,
-                genre.name.replace(/\s+/g, '_')
-            );
+            const genreDir = path.join(baseOutputFolder, genre.name.replace(/\s+/g, '_'));
             const filePath = path.join(
                 genreDir,
                 `${genre.name.replace(/\s+/g, '_')}-${timestamp}.json`
             );
-
 
             fs.mkdirSync(genreDir, { recursive: true });
             fs.writeFileSync(filePath, JSON.stringify(genreResults, null, 2));
