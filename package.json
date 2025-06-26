@@ -1,0 +1,21 @@
+{
+  "name": "quotes-scraper",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "mainScraper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "csv-writer": "^1.6.0",
+    "date-fns": "^4.1.0",
+    "puppeteer": "^24.10.2",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "yargs": "^18.0.0"
+  }
+}
