@@ -47,25 +47,28 @@ const argv = yargs(hideBin(process.argv))
     .option('max-retries', { type: 'number', default: 2 })
     .option('assets', {
         type: 'string',
-        describe: 'changes the default folder that downloads goes into',
+        describe: 'changes the default folder that downloads go into',
         default: 'assets/'
     })
     .argv;
 
+// Automatically switch to genre target if --genres is specified and --target is not
 if (!hideBin(process.argv).some(arg => arg.startsWith('--target')) && argv.genres && argv.target === 'books') {
     argv.target = 'genre';
 }
+
+// Setup timestamped asset directory
+const runTimestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
+const isSpecificGenreRun = !!argv.genres;
+const assetRunLabel = isSpecificGenreRun ? 'selectedGenres' : 'allGenres';
+argv.assets = path.join(argv.assets, `${assetRunLabel}-${runTimestamp}`);
 
 // Ensure output & asset directories exist
 if (!argv.output) {
     argv.output = `output/${argv.target}.json`;
 }
-
 fs.mkdirSync(argv.assets, { recursive: true });
 fs.mkdirSync(path.dirname(argv.output), { recursive: true });
-const runTimestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
-argv.assets = path.join(argv.assets, runTimestamp);
-
 
 setupLogger(argv.log);
 
@@ -91,22 +94,20 @@ const run = async () => {
                 genreLimit: argv['genre-limit'],
                 maxRetries: argv['max-retries'],
                 scrapeFn: scrapePage,
-                onPageScraped: (i) => logInfo(`📘 Scraped main catalog page ${i}`)
+                onPageScraped: (i) => logInfo(`Scraped main catalog page ${i}`)
             });
         } else if (argv.target === 'genre') {
             results = await scrapeBooksByGenre(page, {
                 delay: argv.delay,
                 limit: argv.limit,
-                genres: argv.genres, // ✅ pass it through
+                genres: argv.genres,
                 genreLimit: argv['genre-limit'],
-                assetsPath: argv['images'] ? argv.assets : null, 
+                assetsPath: argv.images ? argv.assets : null,
                 maxRetries: argv['max-retries'],
-                assetsPath: argv.assets,
                 savePerGenre: true,
                 onGenreScraped: (genre, count) =>
-                    logInfo(`📚 Scraped ${count} books from genre "${genre}"`)
+                    logInfo(`Scraped ${count} books from genre "${genre}"`)
             });
-
         } else if (argv.target === 'images') {
             results = await extractBooksWithImages(page, {
                 delay: argv.delay,
@@ -118,9 +119,9 @@ const run = async () => {
         }
 
         await saveResults(results, 'json', '', argv.target, argv);
-        logInfo(`🎉 Scraping complete. Total records: ${results.length}`);
+        logInfo(`Scraping complete. Total records: ${results.length}`);
     } catch (err) {
-        logError(`❌ Fatal error: ${err.message}`);
+        logError(`Fatal error: ${err.message}`);
     } finally {
         await browser.close();
         logEnd(start);

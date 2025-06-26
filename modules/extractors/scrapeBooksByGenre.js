@@ -93,6 +93,7 @@ export const scrapeBooksByGenre = async (page, options) => {
 
                 if (options.assetsPath) {
                     const genreFolder = path.join(options.assetsPath, genre.name.replace(/\s+/g, '_'));
+
                     for (const book of books) {
                         if (book.image) {
                             try {
