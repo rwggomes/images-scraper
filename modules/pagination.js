@@ -1,17 +1,7 @@
-import { URL } from 'url';
+import { BASE_URLS } from './config/constants.js'; // adjust path as needed
 
 /**
  * Handles paginated scraping for either the main catalog or a genre page.
- * 
- * @param {puppeteer.Page} page - Puppeteer page instance
- * @param {object} options
- * @param {string} options.baseUrl - Base URL of the scraping target
- * @param {number} options.delay - Millisecond delay between pages
- * @param {number} options.limit - Max number of pages to scrape
- * @param {number} options.maxRetries - Max retry attempts per page
- * @param {Function} options.scrapeFn - Function that performs the scraping
- * @param {Function} options.onPageScraped - Optional callback after each page
- * @returns {Promise<Array>} - Collected results
  */
 export const handlePagination = async (
   page,
@@ -31,14 +21,12 @@ export const handlePagination = async (
   while (hasNext && (!limit || pageIndex <= limit)) {
     let pageUrl;
 
-    // Main catalog logic
-    if (baseUrl === 'https://books.toscrape.com/' || baseUrl.endsWith('/index.html')) {
+    if (baseUrl === BASE_URLS.BOOKS || baseUrl.endsWith('/index.html')) {
       pageUrl =
         pageIndex === 1
-          ? 'https://books.toscrape.com/index.html'
-          : `https://books.toscrape.com/catalogue/page-${pageIndex}.html`;
+          ? `${BASE_URLS.BOOKS}index.html`
+          : `${BASE_URLS.BOOKS}catalogue/page-${pageIndex}.html`;
     } else {
-      // Genre-specific pagination
       pageUrl =
         pageIndex === 1
           ? baseUrl
