@@ -27,7 +27,7 @@ A modular, headless Puppeteer scraper for [books.toscrape.com](https://books.tos
 ## Getting Started
 
 ```bash
-git clone https://github.com/your-username/books-scraper
+git clone https://github.com/rwggomes/books-scraper
 cd books-scraper
 npm install
 ```
