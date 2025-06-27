@@ -1,6 +1,6 @@
 # Books Scraper
 
-A modular, headless Puppeteer scraper for [books.toscrape.com](https://books.toscrape.com/), designed for flexibility, performance, and maintainability. Supports paginated scraping, genre filtering, CSV/JSON export, and optional image downloading.
+A modular, headless Puppeteer scraper for [books.toscrape.com](https://books.toscrape.com/), designed for flexibility, performance, and maintainability. Supports paginated scraping, genre filtering, JSON export, and optional image downloading.
 
 ---
 
