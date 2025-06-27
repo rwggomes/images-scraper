@@ -1,4 +1,4 @@
-import { BASE_URLS } from './config/constants.js'; // adjust path as needed
+import { BASE_URLS, SCRAPING_DELAYS } from './config/constants.js';
 
 /**
  * Handles paginated scraping for either the main catalog or a genre page.
@@ -7,7 +7,7 @@ export const handlePagination = async (
   page,
   {
     baseUrl,
-    delay = 1000,
+    delay = SCRAPING_DELAYS.DEFAULT_PAGE_DELAY,
     limit = 3,
     maxRetries = 2,
     scrapeFn,
@@ -36,6 +36,7 @@ export const handlePagination = async (
     let retryCount = 0;
     let success = false;
 
+    // Retry failed page loads up to the configured maxRetries value
     while (!success && retryCount <= maxRetries) {
       try {
         await page.goto(pageUrl, { waitUntil: 'domcontentloaded' });
@@ -49,6 +50,9 @@ export const handlePagination = async (
       } catch (err) {
         retryCount++;
         console.error(`Retry ${retryCount}/${maxRetries} failed on ${pageUrl}: ${err.message}`);
+
+        // Wait between retries to avoid hammering the server (defined in SCRAPING_DELAYS)
+        await new Promise(resolve => setTimeout(resolve, SCRAPING_DELAYS.RETRY_DELAY));
       }
     }
 

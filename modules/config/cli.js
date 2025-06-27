@@ -32,7 +32,8 @@ export const CLI_OPTIONS = {
         alias: 'd',
         type: 'number',
         describe: 'Delay between page loads (ms)',
-        default: SCRAPING_DELAYS.DEFAULT_PAGE_DELAY
+        default: SCRAPING_DELAYS.DEFAULT_PAGE_DELAY // Reasonable delay between page loads to avoid overloading the target site
+
     },
     HEADLESS: {
         type: 'boolean',

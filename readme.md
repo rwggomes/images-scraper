@@ -1,6 +1,6 @@
 # Books Scraper
 
-A modular, headless Puppeteer scraper for [books.toscrape.com](https://books.toscrape.com/), designed for flexibility, performance, and maintainability. Supports paginated scraping, genre filtering, JSON export, and optional image downloading.
+A modular, headless Puppeteer scraper for [books.toscrape.com](https://books.toscrape.com/), designed for flexibility, performance, and maintainability. Supports paginated scraping, genre filtering, JSON export, and optional image downloading grouped by page.
 
 ---
 
@@ -14,13 +14,13 @@ A modular, headless Puppeteer scraper for [books.toscrape.com](https://books.tos
   * Filename sanitization
   * Duplicate filename resolution
   * Extension validation
-
+  * Automatic grouping into subfolders by page when `--limit > 1`
 * CLI support with:
 
-  * Runtime validation and helpful error messages
-  * Configurable retries, delay, limits
-  
+  * Runtime validation and helpful error messages with suggestions
+  * Configurable retry attempts, request delays, and scraping limits
 * Timestamped output directories and asset folders
+* All scraping constants and defaults stored in `config/constants.js`
 
 ---
 
@@ -48,7 +48,7 @@ node mainScraper.js --target books --limit 3
 node mainScraper.js --genres "Romance,Travel"
 ```
 
-### Scrape genres and download images
+### Scrape genres and download images (grouped by genre and page if `--limit > 1`)
 
 ```bash
 node mainScraper.js --target genre --images true --genres "Science"
@@ -72,7 +72,7 @@ node mainScraper.js --target genre --images true --genres "Science"
 | `--log`          | Path to the log file                                       | `scraper.log`  |
 | `--headless`     | Run Puppeteer in headless mode                             | `true`         |
 
-**Note:** Runtime validation is applied. Example error:
+**Note:** All numeric inputs are validated. You’ll get clear messages like:
 
 ```
 Invalid --limit: 1000. Must be between 1 and 50. Did you mean --limit 50?
@@ -82,18 +82,20 @@ Invalid --limit: 1000. Must be between 1 and 50. Did you mean --limit 50?
 
 ## Output Structure
 
-* Scraped data is saved in the `/output/` directory.
-* Image files are stored under `/assets/[label]-[timestamp]/`.
-* Log messages are written to `scraper.log`.
+* Scraped data is saved to the `/output/` directory.
+* Downloaded images are saved under `/assets/[label]-[timestamp]/`
+
+  * When `--limit > 1`, images are grouped in subfolders by page: `page-1/`, `page-2/`, etc.
+* Logs are written to `scraper.log`.
 
 ---
 
 ## Development Notes
 
-* All scraping constants (e.g. retry delays, filename limits) are stored in `config/constants.js`.
-* CLI configurations are managed in `config/cli.js`.
-* Each module is independent and testable.
-* Built with Puppeteer using the stealth plugin to avoid basic bot detection.
+* All scraping constants (e.g., delays, limits, paths) are defined in `config/constants.js`
+* CLI definitions and validation are managed in `config/cli.js`
+* Image filenames are sanitized and de-duplicated
+* Code is organized into small, testable modules
+* Built with Puppeteer and `puppeteer-extra` using the stealth plugin for bot evasion
 
 ---
-

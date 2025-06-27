@@ -1,7 +1,8 @@
 import { extractBookInfo } from './utils/extractBookInfo.js';
 import { downloadImage } from './utils/downloadImage.js';
-import { BASE_URLS } from './config/constants.js'
-
+import { BASE_URLS } from './config/constants.js';
+import fs from 'fs-extra';
+import path from 'path';
 
 export const scrapePage = async (page, pageIndex, options = {}) => {
   await page.waitForSelector('.product_pod');
@@ -17,26 +18,32 @@ export const scrapePage = async (page, pageIndex, options = {}) => {
       return { title, price, availability, image };
     });
   }, BASE_URLS.BOOKS);
-  ;
 
   const books = rawBooks.map(book => extractBookInfo(book, { pageIndex }));
 
   console.log(`Scraped ${books.length} books. Sample:`, books[0]);
 
-  // ✅ Download images if path is provided
+  // Download images if path is provided
   if (options.assetsPath) {
-    const assetFolder = options.assetsPath;
+    // If limit > 1, organize by page number
+    const baseFolder = options.assetsPath;
+    const useSubfolder = options.limit && options.limit > 1;
+    const pageFolder = useSubfolder
+      ? path.join(baseFolder, `page-${pageIndex}`)
+      : baseFolder;
+
+    await fs.ensureDir(pageFolder);
 
     for (const book of books) {
       if (book.image) {
         console.log(`Downloading image: ${book.image}`);
         try {
-          await downloadImage(book.image, assetFolder, book.title);
+          await downloadImage(book.image, pageFolder, book.title);
         } catch (err) {
           console.error(`Image download failed: ${err.message}`);
         }
       } else {
-        console.warn(`[WARN] Book has no image:`, book.title);
+        console.warn(`[WARN] Book has no cover image:`, book.title);
       }
     }
   }

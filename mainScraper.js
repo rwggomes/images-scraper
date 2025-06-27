@@ -33,7 +33,7 @@ const argv = yargs(hideBin(process.argv))
   .check((argv) => {
     const { LIMIT, MAX_RETRIES } = CLI_OPTIONS;
 
-    if (argv.limit < LIMIT.min || argv.limit > LIMIT.max) {
+    if (argv.limit < LIMIT.min || argv.limit > LIMIT.max) {     // Validate --limit input to prevent scraping too few or too many pages
       const suggested = Math.max(LIMIT.min, Math.min(argv.limit, LIMIT.max));
       throw new Error(
         `Invalid --limit: ${argv.limit}. Must be between ${LIMIT.min} and ${LIMIT.max}. ` +
@@ -102,7 +102,8 @@ const run = async () => {
         genreLimit: argv['genre-limit'],
         maxRetries: argv['max-retries'],
         scrapeFn: (page, i) => scrapePage(page, i, {
-          assetsPath: argv.images ? argv.assets : null
+          assetsPath: argv.images ? argv.assets : null,
+          limit: argv.limit
         }),
         onPageScraped: (i) => logInfo(`Scraped main catalog page ${i}`)
       });
