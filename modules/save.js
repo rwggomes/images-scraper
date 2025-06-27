@@ -5,12 +5,11 @@ import { logInfo } from './logger.js';
 import { createWriteStream } from 'fs';
 import http from 'http';
 import https from 'https';
-import { createObjectCsvWriter } from 'csv-writer';
 
 /**
- * Saves data to a JSON or CSV file with a timestamped filename.
+ * Saves data to a JSON file with a timestamped filename.
  */
-export async function saveResults(data, format = 'json', _, target = 'results', argv = {}) {
+export async function saveResults(data, _, __, target = 'results', argv = {}) {
   if (!data || data.length === 0) {
     console.warn('No data to save.');
     return;
@@ -18,20 +17,11 @@ export async function saveResults(data, format = 'json', _, target = 'results', 
 
   const outputDir = 'output';
   const timestamp = formatDate(new Date(), 'yyyy-MM-dd_HH-mm-ss');
-  const filename = `${target}-${timestamp}.${format}`;
+  const filename = `${target}-${timestamp}.json`;
   const outputPath = path.join(outputDir, filename);
 
   await fs.ensureDir(outputDir);
-
-  if (format === 'csv') {
-    const csvWriter = createObjectCsvWriter({
-      path: outputPath,
-      header: Object.keys(data[0]).map(key => ({ id: key, title: key })),
-    });
-    await csvWriter.writeRecords(data);
-  } else {
-    await fs.writeJson(outputPath, data, { spaces: 2 });
-  }
+  await fs.writeJson(outputPath, data, { spaces: 2 });
 
   logInfo(`Saved ${data.length} items to ${outputPath}`);
 

@@ -21,7 +21,7 @@ export const scrapePage = async (page, pageIndex, options = {}) => {
 
   const books = rawBooks.map(book => extractBookInfo(book, { pageIndex }));
 
-  console.log(`[DEBUG] Scraped ${books.length} books. Sample:`, books[0]);
+  console.log(`Scraped ${books.length} books. Sample:`, books[0]);
 
   // ✅ Download images if path is provided
   if (options.assetsPath) {
@@ -29,7 +29,7 @@ export const scrapePage = async (page, pageIndex, options = {}) => {
 
     for (const book of books) {
       if (book.image) {
-        console.log(`[DEBUG] Downloading image: ${book.image}`);
+        console.log(`Downloading image: ${book.image}`);
         try {
           await downloadImage(book.image, assetFolder, book.title);
         } catch (err) {
