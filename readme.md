@@ -54,12 +54,6 @@ node mainScraper.js --genres "Romance,Travel"
 node mainScraper.js --target genre --images true --genres "Science"
 ```
 
-### Output in CSV format
-
-```bash
-node mainScraper.js --target books --format csv
-```
-
 ---
 
 ## CLI Options
